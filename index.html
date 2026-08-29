@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KYU — AM Generator</title>
+  <title>Theresia AM — K-Frame Suite</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0a;
+      --bg: #070707;
       --card-bg: rgba(255, 255, 255, 0.03);
       --border: rgba(255, 255, 255, 0.12);
+      --border-hover: rgba(255, 255, 255, 0.3);
       --text-main: #f5f5f5;
       --text-muted: #888888;
       --accent-white: #ffffff;
+      --accent-glow: rgba(255, 255, 255, 0.08);
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * {
@@ -29,17 +32,18 @@
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      padding: 24px;
+      justify-content: center;
+      padding: 80px 24px 40px;
       position: relative;
       overflow-x: hidden;
     }
 
-    /* K-Frame Grid Background */
+    /* K-Frame Grid Background (Responsive) */
     body::before {
       content: "";
-      position: absolute;
+      position: fixed;
       inset: 0;
       background-image: 
         linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
@@ -49,24 +53,43 @@
       pointer-events: none;
     }
 
-    /* Geometric Decoration */
+    /* Geometric Background Circle */
     .geo-circle {
-      position: absolute;
-      width: 400px;
-      height: 400px;
+      position: fixed;
+      width: 500px;
+      height: 500px;
       border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 50%;
-      top: -100px;
-      right: -100px;
+      top: -150px;
+      right: -150px;
       pointer-events: none;
+      z-index: 0;
     }
 
-    /* Top Navigation Bar / Menu Toggle */
-    .nav-bar {
-      position: absolute;
-      top: 24px;
-      right: 24px;
-      z-index: 10;
+    /* Fixed Navigation Header */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 7, 7, 0.6);
+    }
+
+    .nav-brand {
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-white);
     }
 
     .menu-btn {
@@ -81,8 +104,7 @@
       align-items: center;
       gap: 5px;
       cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: all 0.2s ease;
+      transition: all 0.3s var(--ease);
     }
 
     .menu-btn:hover {
@@ -96,55 +118,155 @@
       height: 2px;
       background-color: var(--text-main);
       border-radius: 2px;
-      transition: all 0.3s ease;
+      transition: all 0.3s var(--ease);
     }
 
-    /* K-Frame Floating Card & Glassmorphism */
-    .container {
-      position: relative;
-      z-index: 1;
+    /* Slide Navigation Drawer */
+    .nav-drawer {
+      position: fixed;
+      top: 0;
+      right: -100%;
       width: 100%;
-      max-width: 480px;
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border);
-      border-radius: 16px;
+      max-width: 380px;
+      height: 100vh;
+      background: rgba(12, 12, 12, 0.95);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-left: 1px solid var(--border);
+      z-index: 200;
       padding: 40px 32px;
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: right 0.4s var(--ease);
+      box-shadow: -20px 0 50px rgba(0, 0, 0, 0.8);
     }
 
-    .header {
-      margin-bottom: 32px;
+    .nav-drawer.active { right: 0; }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       border-bottom: 1px solid var(--border);
       padding-bottom: 20px;
     }
 
-    .brand {
+    .drawer-title {
       font-family: 'Space Mono', monospace;
       font-size: 11px;
-      text-transform: uppercase;
       letter-spacing: 3px;
       color: var(--text-muted);
-      margin-bottom: 8px;
+      text-transform: uppercase;
     }
 
-    .title {
-      font-size: 28px;
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+      width: auto;
+      padding: 0;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .nav-links li a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      transition: all 0.3s var(--ease);
+    }
+
+    .nav-links li a:hover,
+    .nav-links li a.active {
+      color: var(--accent-white);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border);
+      padding-left: 24px;
+    }
+
+    .drawer-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Page Views Section Switcher */
+    .page-view {
+      display: none;
+      width: 100%;
+      max-width: 540px;
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+    }
+
+    .page-view.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Floating K-Frame Card */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 32px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-header {
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    .card-subtitle {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 26px;
       font-weight: 800;
-      letter-spacing: -1px;
+      letter-spacing: -0.5px;
       color: var(--accent-white);
     }
 
-    .form-group {
-      margin-bottom: 20px;
-    }
+    /* Form Styles */
+    .form-group { margin-bottom: 20px; }
 
     label {
       display: block;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      font-size: 11px;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 1px;
       text-transform: uppercase;
       margin-bottom: 8px;
       color: var(--text-muted);
@@ -159,167 +281,104 @@
       color: var(--text-main);
       font-size: 14px;
       outline: none;
-      transition: all 0.2s ease;
+      transition: all 0.2s var(--ease);
     }
 
     input:focus {
       border-color: var(--accent-white);
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.06);
     }
 
-    button {
+    button.btn-primary {
       width: 100%;
       padding: 14px;
       background: var(--accent-white);
       color: #000;
       border: none;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12px;
+      font-family: 'Space Mono', monospace;
       font-weight: 700;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s var(--ease);
     }
 
-    button:hover {
+    button.btn-primary:hover {
       opacity: 0.9;
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
     }
 
-    button:disabled {
-      opacity: 0.4;
+    button.btn-primary:disabled {
+      opacity: 0.3;
       cursor: not-allowed;
       transform: none;
     }
 
+    /* Output Status Box */
     .status-box {
       margin-top: 24px;
       padding: 16px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      font-size: 13px;
+      font-size: 12px;
       font-family: 'Space Mono', monospace;
       display: none;
       word-break: break-all;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.6);
+      line-height: 1.5;
     }
 
     .status-box.active { display: block; }
     .status-box.info { border-color: rgba(255, 255, 255, 0.3); color: var(--text-main); }
-    .status-box.error { border-color: rgba(255, 85, 85, 0.4); color: #ff5555; }
-    .status-box.success { border-color: rgba(85, 255, 127, 0.4); color: #55ff7f; }
+    .status-box.error { border-color: rgba(255, 85, 85, 0.5); color: #ff5555; }
+    .status-box.success { border-color: rgba(85, 255, 127, 0.5); color: #55ff7f; }
 
     .step-2 { display: none; }
 
     pre {
       white-space: pre-wrap;
       font-size: 11px;
-      margin-top: 8px;
+      margin-top: 10px;
       color: var(--text-muted);
     }
 
-    /* Overlay & Modal Guide (K-Frame Styled) */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(8px);
-      z-index: 20;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .modal-overlay.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-content {
-      background: rgba(15, 15, 15, 0.95);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      width: 100%;
-      max-width: 520px;
-      max-height: 85vh;
-      overflow-y: auto;
-      padding: 32px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-      position: relative;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 16px;
-      margin-bottom: 24px;
-    }
-
-    .modal-title {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: var(--accent-white);
-    }
-
-    .close-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 20px;
-      cursor: pointer;
-      width: auto;
-      padding: 0;
-    }
-
-    .close-btn:hover {
-      color: var(--accent-white);
-      transform: none;
-    }
-
-    .guide-section {
-      margin-bottom: 24px;
-    }
-
-    .guide-section h4 {
-      font-size: 13px;
-      font-family: 'Space Mono', monospace;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .guide-list {
-      list-style-type: none;
-      font-size: 13px;
-      line-height: 1.6;
+    /* Content Styling for Info Pages */
+    .content-block {
+      font-size: 14px;
+      line-height: 1.7;
       color: var(--text-main);
     }
 
-    .guide-list li {
-      margin-bottom: 10px;
-      padding-left: 20px;
-      position: relative;
+    .content-block p { margin-bottom: 16px; color: #ccc; }
+    
+    .guide-step {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.01);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
     }
 
-    .guide-list li::before {
-      content: "—";
-      position: absolute;
-      left: 0;
-      color: var(--text-muted);
-    }
-
-    .highlight {
+    .guide-step-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
       color: var(--accent-white);
-      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      margin-bottom: 12px;
     }
   </style>
 </head>
@@ -327,93 +386,177 @@
 
   <div class="geo-circle"></div>
 
-  <!-- Hamburger Navigation Button -->
-  <div class="nav-bar">
-    <button class="menu-btn" onclick="toggleModal(true)" aria-label="Open Menu">
+  <!-- Top Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">Theresia AM</div>
+    <button class="menu-btn" onclick="toggleDrawer(true)" aria-label="Toggle Menu">
       <span></span>
       <span></span>
       <span></span>
     </button>
-  </div>
+  </nav>
 
-  <div class="container">
-    <div class="header">
-      <div class="brand">K-Frame Protocol</div>
-      <div class="title">AM GENERATOR</div>
+  <!-- Slide-out Drawer Navigation -->
+  <aside id="drawer" class="nav-drawer">
+    <div>
+      <div class="drawer-header">
+        <div class="drawer-title">Navigation Menu</div>
+        <button class="close-btn" onclick="toggleDrawer(false)">&times;</button>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#" class="active" onclick="switchPage('page-generator', this)">AM Generator <span>→</span></a></li>
+        <li><a href="#" onclick="switchPage('page-about', this)">About Theresia AM <span>→</span></a></li>
+        <li><a href="#" onclick="switchPage('page-guide', this)">Cara Penggunaan <span>→</span></a></li>
+        <li><a href="#" onclick="switchPage('page-docs', this)">Dokumentasi API <span>→</span></a></li>
+        <li><a href="#" onclick="switchPage('page-developer', this)">Developer Info <span>→</span></a></li>
+      </ul>
     </div>
-
-    <!-- Step 1: Input Email -->
-    <div id="step-1">
-      <div class="form-group">
-        <label for="email">Target Email Address</label>
-        <input type="email" id="email" placeholder="example@domain.com" required>
-      </div>
-      <button id="btn-send" onclick="handleSendLink()">Send Magic Link</button>
+    <div class="drawer-footer">
+      K-Frame Protocol v2.4<br>
+      Strict Monochrome Standard
     </div>
+  </aside>
 
-    <!-- Step 2: Verification Link -->
-    <div id="step-2" class="step-2">
-      <div class="form-group">
-        <label for="magic-link">Magic Verification Link</label>
-        <input type="text" id="magic-link" placeholder="Paste full link from inbox..." required>
+  <!-- PAGE 1: AM GENERATOR -->
+  <main id="page-generator" class="page-view active">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-subtitle">K-Frame Protocol</div>
+        <div class="card-title">AM GENERATOR</div>
       </div>
-      <button id="btn-verify" onclick="handleVerifyLink()">Verify Account</button>
+
+      <!-- Step 1 Form -->
+      <div id="step-1">
+        <div class="form-group">
+          <label for="email">Target Email Address</label>
+          <input type="email" id="email" placeholder="example@domain.com" required>
+        </div>
+        <button id="btn-send" class="btn-primary" onclick="handleSendLink()">Send Magic Link</button>
+      </div>
+
+      <!-- Step 2 Form -->
+      <div id="step-2" class="step-2">
+        <div class="form-group">
+          <label for="magic-link">Magic Verification Link</label>
+          <input type="text" id="magic-link" placeholder="Paste full link from inbox..." required>
+        </div>
+        <button id="btn-verify" class="btn-primary" onclick="handleVerifyLink()">Verify Account</button>
+      </div>
+
+      <!-- Status Indicator -->
+      <div id="status" class="status-box"></div>
     </div>
+  </main>
 
-    <!-- Status Message -->
-    <div id="status" class="status-box"></div>
-  </div>
-
-  <!-- Guide Modal -->
-  <div id="guide-modal" class="modal-overlay" onclick="handleOverlayClick(event)">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-title">GUIDE & PROTOCOL</div>
-        <button class="close-btn" onclick="toggleModal(false)">&times;</button>
+  <!-- PAGE 2: ABOUT THERESIA AM -->
+  <main id="page-about" class="page-view">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-subtitle">System Info</div>
+        <div class="card-title">ABOUT THERESIA AM</div>
       </div>
-
-      <div class="guide-section">
-        <h4>Cara Penggunaan Website</h4>
-        <ul class="guide-list">
-          <li>Masukkan alamat email aktif Anda di kolom <span class="highlight">Target Email Address</span>.</li>
-          <li>Tekan tombol <span class="highlight">Send Magic Link</span> untuk memicu pengiriman pesan verifikasi.</li>
-          <li>Buka kotak masuk (inbox) atau folder spam pada email Anda.</li>
-          <li>Salin (copy) tautan/link verifikasi penuh yang diterima.</li>
-          <li>Tempelkan (paste) link tersebut ke kolom verifikasi lalu tekan tombol <span class="highlight">Verify Account</span>.</li>
-        </ul>
-      </div>
-
-      <div class="guide-section">
-        <h4>Cara Verifikasi Yang Benar</h4>
-        <ul class="guide-list">
-          <li>Jangan mengeklik langsung tautan dari email melalui browser publik jika ingin memprosesnya via generator ini.</li>
-          <li>Pastikan Anda menyalin <span class="highlight">seluruh URL</span> yang ada di dalam tombol email (klik kanan > Copy Link Address).</li>
-          <li>Jangan menutup atau merefresh halaman website ini saat berpindah aplikasi untuk mengecek email agar sesi token tidak hilang.</li>
-          <li>Proses verifikasi wajib dilakukan sebelum batas waktu <span class="highlight">session expired</span> dari token email berakhir.</li>
-        </ul>
+      <div class="content-block">
+        <p><span class="badge">ENGINE CORE</span></p>
+        <p><strong>Theresia AM Suite</strong> adalah sistem otentikasi otomatis berbasis API modern yang dirancang khusus untuk memproses pengiriman serta verifikasi token tanpa batas akses standar.</p>
+        <p>Dengan integrasi <em>Serverless Proxy Engine</em>, platform ini membebaskan pengguna dari kendala Rate Limit browser, kendala CORS, serta masalah pemblokiran domain publik.</p>
       </div>
     </div>
-  </div>
+  </main>
+
+  <!-- PAGE 3: CARA PENGGUNAAN -->
+  <main id="page-guide" class="page-view">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-subtitle">Instructions</div>
+        <div class="card-title">CARA PENGGUNAAN</div>
+      </div>
+      <div class="content-block">
+        <div class="guide-step">
+          <div class="guide-step-title">01. Input Email</div>
+          <p>Masukkan alamat email Anda pada tab AM Generator dan tekan "Send Magic Link".</p>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-title">02. Salin Link Verifikasi</div>
+          <p>Buka inbox/spam email Anda. Salin (copy address) tautan Magic Link penuh dari email tersebut.</p>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-title">03. Tempel & Verifikasi</div>
+          <p>Kembali ke web ini, tempelkan link pada form Step 2 lalu tekan "Verify Account".</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PAGE 4: DOKUMENTASI API -->
+  <main id="page-docs" class="page-view">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-subtitle">Endpoints</div>
+        <div class="card-title">DOKUMENTASI API</div>
+      </div>
+      <div class="content-block">
+        <div class="guide-step">
+          <div class="guide-step-title">GET /api/cookie</div>
+          <p>Mengambil session cookie aman dari server backend.</p>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-title">POST /api/send</div>
+          <p>Mengirimkan permintaan link verifikasi ke email target.</p>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-title">POST /api/verify</div>
+          <p>Memvalidasi token & magic link untuk otentikasi user data.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PAGE 5: DEVELOPER INFO -->
+  <main id="page-developer" class="page-view">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-subtitle">Author</div>
+        <div class="card-title">DEVELOPER INFO</div>
+      </div>
+      <div class="content-block">
+        <p><span class="badge">DEVELOPER PROFILE</span></p>
+        <p>Website ini dirancang menggunakan standar <strong>K-Frame Architecture</strong> (Monochrome, Soft Glass, Grid Backdrop, & Subtle Motion).</p>
+        <p>Di-build untuk berjalan penuh di <strong>Vercel Serverless Functions</strong> & <strong>GitHub Pages Integration</strong>.</p>
+      </div>
+    </div>
+  </main>
 
   <script>
     let activeCookie = null;
     let targetEmail = "";
 
-    function toggleModal(show) {
-      const modal = document.getElementById('guide-modal');
+    // Toggle Navigation Drawer Menu
+    function toggleDrawer(show) {
+      const drawer = document.getElementById('drawer');
       if (show) {
-        modal.classList.add('open');
+        drawer.classList.add('active');
       } else {
-        modal.classList.remove('open');
+        drawer.classList.remove('active');
       }
     }
 
-    function handleOverlayClick(event) {
-      if (event.target.id === 'guide-modal') {
-        toggleModal(false);
-      }
+    // Switch Single Page Sections Smoothly
+    function switchPage(pageId, element) {
+      toggleDrawer(false);
+      
+      const pages = document.querySelectorAll('.page-view');
+      pages.forEach(page => page.classList.remove('active'));
+
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => link.classList.remove('active'));
+
+      setTimeout(() => {
+        document.getElementById(pageId).classList.add('active');
+        if (element) element.classList.add('active');
+      }, 150);
     }
 
+    // Status Notification Renderer
     function showStatus(message, type = 'info', jsonDetails = null) {
       const box = document.getElementById('status');
       box.className = `status-box active ${type}`;
@@ -423,29 +566,30 @@
       }
     }
 
+    // Step 1: Send Verification Link
     async function handleSendLink() {
       const emailInput = document.getElementById('email').value.trim();
       const btn = document.getElementById('btn-send');
 
       if (!emailInput) {
-        showStatus("Please enter a valid email address.", "error");
+        showStatus("Harap masukkan alamat email yang valid.", "error");
         return;
       }
 
       targetEmail = emailInput;
       btn.disabled = true;
-      showStatus("Initializing session & obtaining cookie...");
+      showStatus("Menginisialisasi sesi & mendapatkan cookie...");
 
       try {
         const cookieRes = await fetch('/api/cookie');
         const cookieData = await cookieRes.json();
 
         if (!cookieData.ok || !cookieData.cookie) {
-          throw new Error(cookieData.error || "Failed to obtain session cookie.");
+          throw new Error(cookieData.error || "Gagal memperoleh cookie sesi.");
         }
 
         activeCookie = cookieData.cookie;
-        showStatus("Sending magic link to inbox...");
+        showStatus("Mengirim magic link ke kotak masuk email...");
 
         const sendRes = await fetch('/api/send', {
           method: 'POST',
@@ -456,10 +600,10 @@
         const sendData = await sendRes.json();
 
         if (!sendData.ok) {
-          throw new Error(sendData.error || "Failed to send link.");
+          throw new Error(sendData.error || "Gagal mengirim link verifikasi.");
         }
 
-        showStatus("✅ Magic link sent! Please check your email inbox and paste the link below.", "success");
+        showStatus("✅ Magic link terkirim! Periksa inbox/spam email Anda dan tempel tautannya di bawah ini.", "success");
         document.getElementById('step-1').style.display = 'none';
         document.getElementById('step-2').style.display = 'block';
 
@@ -469,17 +613,18 @@
       }
     }
 
+    // Step 2: Verify Magic Link
     async function handleVerifyLink() {
       const linkInput = document.getElementById('magic-link').value.trim();
       const btn = document.getElementById('btn-verify');
 
       if (!linkInput || linkInput.length < 10) {
-        showStatus("Invalid magic link format.", "error");
+        showStatus("Format magic link tidak valid.", "error");
         return;
       }
 
       btn.disabled = true;
-      showStatus("Verifying magic link...");
+      showStatus("Memverifikasi magic link...");
 
       try {
         const verifyRes = await fetch('/api/verify', {
@@ -495,10 +640,10 @@
         const verifyData = await verifyRes.json();
 
         if (!verifyData.ok) {
-          throw new Error(verifyData.error || "Verification failed.");
+          throw new Error(verifyData.error || "Verifikasi gagal.");
         }
 
-        showStatus("✅ Verification Successful!", "success", verifyData.data || verifyData);
+        showStatus("✅ VERIFIKASI BERHASIL!", "success", verifyData.data || verifyData);
 
       } catch (err) {
         showStatus(`Error: ${err.message}`, "error");
