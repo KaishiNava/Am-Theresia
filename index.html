@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KYU — AM Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.12);
+      --text-main: #f5f5f5;
+      --text-muted: #888888;
+      --accent-white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* K-Frame Grid Background */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Geometric Decoration */
+    .geo-circle {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      top: -100px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    /* K-Frame Floating Card & Glassmorphism */
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 32px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .header {
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+
+    .brand {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: var(--accent-white);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus {
+      border-color: var(--accent-white);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent-white);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status-box {
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-family: 'Space Mono', monospace;
+      display: none;
+      word-break: break-all;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .status-box.active { display: block; }
+    .status-box.info { border-color: rgba(255, 255, 255, 0.3); color: var(--text-main); }
+    .status-box.error { border-color: rgba(255, 85, 85, 0.4); color: #ff5555; }
+    .status-box.success { border-color: rgba(85, 255, 127, 0.4); color: #55ff7f; }
+
+    .step-2 { display: none; }
+
+    pre {
+      white-space: pre-wrap;
+      font-size: 11px;
+      margin-top: 8px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="geo-circle"></div>
+
+  <div class="container">
+    <div class="header">
+      <div class="brand">K-Frame Protocol</div>
+      <div class="title">AM GENERATOR</div>
+    </div>
+
+    <!-- Step 1: Input Email -->
+    <div id="step-1">
+      <div class="form-group">
+        <label for="email">Target Email Address</label>
+        <input type="email" id="email" placeholder="example@domain.com" required>
+      </div>
+      <button id="btn-send" onclick="handleSendLink()">Send Magic Link</button>
+    </div>
+
+    <!-- Step 2: Verification Link -->
+    <div id="step-2" class="step-2">
+      <div class="form-group">
+        <label for="magic-link">Magic Verification Link</label>
+        <input type="text" id="magic-link" placeholder="Paste full link from inbox..." required>
+      </div>
+      <button id="btn-verify" onclick="handleVerifyLink()">Verify Account</button>
+    </div>
+
+    <!-- Status Message -->
+    <div id="status" class="status-box"></div>
+  </div>
+
+  <script>
+    let activeCookie = null;
+    let targetEmail = "";
+
+    function showStatus(message, type = 'info', jsonDetails = null) {
+      const box = document.getElementById('status');
+      box.className = `status-box active ${type}`;
+      box.innerHTML = message;
+      if (jsonDetails) {
+        box.innerHTML += `<pre>${JSON.stringify(jsonDetails, null, 2)}</pre>`;
+      }
+    }
+
+    async function handleSendLink() {
+      const emailInput = document.getElementById('email').value.trim();
+      const btn = document.getElementById('btn-send');
+
+      if (!emailInput) {
+        showStatus("Please enter a valid email address.", "error");
+        return;
+      }
+
+      targetEmail = emailInput;
+      btn.disabled = true;
+      showStatus("Initializing session & obtaining cookie...");
+
+      try {
+        // Fetch Cookie Proxy
+        const cookieRes = await fetch('/api/cookie');
+        const cookieData = await cookieRes.json();
+
+        if (!cookieData.ok || !cookieData.cookie) {
+          throw new Error(cookieData.error || "Failed to obtain session cookie.");
+        }
+
+        activeCookie = cookieData.cookie;
+        showStatus("Sending magic link to inbox...");
+
+        // Send Link Proxy
+        const sendRes = await fetch('/api/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: targetEmail, cookie: activeCookie })
+        });
+
+        const sendData = await sendRes.json();
+
+        if (!sendData.ok) {
+          throw new Error(sendData.error || "Failed to send link.");
+        }
+
+        showStatus("✅ Magic link sent! Please check your email inbox and paste the link below.", "success");
+        document.getElementById('step-1').style.display = 'none';
+        document.getElementById('step-2').style.display = 'block';
+
+      } catch (err) {
+        showStatus(`Error: ${err.message}`, "error");
+        btn.disabled = false;
+      }
+    }
+
+    async function handleVerifyLink() {
+      const linkInput = document.getElementById('magic-link').value.trim();
+      const btn = document.getElementById('btn-verify');
+
+      if (!linkInput || linkInput.length < 10) {
+        showStatus("Invalid magic link format.", "error");
+        return;
+      }
+
+      btn.disabled = true;
+      showStatus("Verifying magic link...");
+
+      try {
+        // Verify Link Proxy
+        const verifyRes = await fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: targetEmail,
+            link: linkInput,
+            cookie: activeCookie
+          })
+        });
+
+        const verifyData = await verifyRes.json();
+
+        if (!verifyData.ok) {
+          throw new Error(verifyData.error || "Verification failed.");
+        }
+
+        showStatus("✅ Verification Successful!", "success", verifyData.data || verifyData);
+
+      } catch (err) {
+        showStatus(`Error: ${err.message}`, "error");
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
